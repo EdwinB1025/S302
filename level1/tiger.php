@@ -8,7 +8,10 @@ class Tigger
 
     private function __clone() {}
 
-    private function __wakeup() {}
+    public function __wakeup()
+    {
+        throw new Exception("Singleton properties of Tigger cannot be reinstantiated!");
+    }
 
     public static function getInstance()
     {
@@ -19,10 +22,10 @@ class Tigger
         return self::$instance;
     }
 
-    public static function getCounter(): string
+    public static function getCounter()
     {
 
-        return "Tiger has roar " . self::$counter . " tiemess." . PHP_EOL;
+        echo "Tiger has roar " . self::$counter . " tiemess." . PHP_EOL;
     }
 
     public static function roar()
