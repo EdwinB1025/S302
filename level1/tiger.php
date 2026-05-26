@@ -25,7 +25,7 @@ class Tigger
     public static function getCounter()
     {
 
-        echo "Tiger has roar " . self::$counter . " tiemess." . PHP_EOL;
+        echo "Tiger has roar " . self::$counter . " tiemes." . PHP_EOL;
     }
 
     public static function roar()
