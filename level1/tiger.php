@@ -2,6 +2,7 @@
 class Tigger
 {
     private static $instance;
+    private static int $counter = 0;
 
     private function __construct() {}
 
@@ -18,8 +19,15 @@ class Tigger
         return self::$instance;
     }
 
+    public static function getCounter(): string
+    {
+
+        return "Tiger has roar " . self::$counter . " tiemess." . PHP_EOL;
+    }
+
     public static function roar()
     {
         echo "Grrr!" . PHP_EOL;
+        self::$counter++;
     }
 }
