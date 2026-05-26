@@ -1,35 +1,41 @@
 <?php
+class Wallet {}
+class Keys {}
+class Phone {}
+class TransportKeys {}
+class CarKeys extends TransportKeys {}
+class MotoKeys extends TransportKeys {}
+class PublicTransportCard extends TransportKeys {}
+
 
 class Person
 {
-    public bool $wallet = false;
-    public bool $keys = false;
-    public bool $phone = false;
+    public Wallet $wallet;
+    public Keys $keys;
+    public Phone $phone;
 }
 
 class Worker extends Person
 {
-    public bool $carKeys = false;
-    public bool $motoKeys = false;
+    public TransportKeys $vehicleKeys;
     public function __construct(WorkerBuilder $builder)
     {
         $this->wallet = $builder->wallet;
         $this->keys = $builder->keys;
         $this->phone = $builder->phone;
-        $this->carKeys = $builder->carKeys;
-        $this->motoKeys = $builder->motoKeys;
+        $this->vehicleKeys = $builder->vehicleKeys;
     }
 }
 
 class Student extends Person
 {
-    public bool $metroCard = false;
+    public PublicTransportCard $publicTransportCard;
     public function __construct(StudentBuilder $builder)
     {
         $this->wallet = $builder->wallet;
         $this->keys = $builder->keys;
         $this->phone = $builder->phone;
-        $this->metroCard = $builder->metroCard;
+        $this->publicTransportCard = $builder->publicTransportCard;
     }
 }
 
@@ -42,23 +48,23 @@ interface leaveHome
 
 abstract class LeavingHomeBuilder implements leaveHome
 {
-    public bool $wallet = false;
-    public bool $keys = false;
-    public bool $phone = false;
+    public Wallet $wallet;
+    public Keys $keys;
+    public Phone $phone;
 
     public function getWallet(): static
     {
-        $this->wallet = true;
+        $this->wallet = new Wallet();
         return $this;
     }
     public function getKeys(): static
     {
-        $this->keys = true;
+        $this->keys = new Keys();
         return $this;
     }
     public function getPhone(): static
     {
-        $this->phone = true;
+        $this->phone = new Phone();
         return $this;
     }
     public abstract function build();
@@ -66,10 +72,10 @@ abstract class LeavingHomeBuilder implements leaveHome
 
 class StudentBuilder extends LeavingHomeBuilder
 {
-    public bool $publicTransportCard = false;
+    public PublicTransportCard $publicTransportCard;
     public function getPublicTransportCard(): static
     {
-        $this->publicTransportCard = true;
+        $this->publicTransportCard = new PublicTransportCard();
         return $this;
     }
     public function build(): Student
@@ -80,18 +86,15 @@ class StudentBuilder extends LeavingHomeBuilder
 
 class WorkerBuilder extends LeavingHomeBuilder
 {
-    public bool $carKeys = false;
-    public bool $motoKeys = false;
+    public TransportKeys $vehicleKeys;
     public function getCarKeys(): static
     {
-        $this->carKeys = true;
-        $this->motoKeys = false;
+        $this->vehicleKeys = new CarKeys();
         return $this;
     }
     public function getMotoKeys(): static
     {
-        $this->carKeys = false;
-        $this->motoKeys = true;
+        $this->vehicleKeys = new MotoKeys();
         return $this;
     }
     public function build(): Worker
