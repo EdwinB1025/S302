@@ -1,13 +1,24 @@
 <?php
 class Tigger
 {
+    private static $instance;
 
-    private function __construct()
+    private function __construct() {}
+
+    private function __clone() {}
+
+    private function __wakeup() {}
+
+    public static function getInstance()
     {
-        echo "Building character..." . PHP_EOL;
+        if (!isset(self::$instance)) {
+            self::$instance = new self();
+        }
+
+        return self::$instance;
     }
 
-    public function roar()
+    public static function roar()
     {
         echo "Grrr!" . PHP_EOL;
     }
