@@ -10,95 +10,91 @@ class PublicTransportCard extends TransportKeys {}
 
 class Person
 {
+    public string $type;
     public Wallet $wallet;
     public Keys $keys;
     public Phone $phone;
-}
-
-class Worker extends Person
-{
-    public TransportKeys $vehicleKeys;
-    public function __construct(WorkerBuilder $builder)
+    public TransportKeys $transportKeys;
+    public function __construct(LeaveHome $dependencyInjector)
     {
-        $this->wallet = $builder->wallet;
-        $this->keys = $builder->keys;
-        $this->phone = $builder->phone;
-        $this->vehicleKeys = $builder->vehicleKeys;
+        $this->type = $dependencyInjector->type;
+        $this->wallet = $dependencyInjector->wallet;
+        $this->keys = $dependencyInjector->keys;
+        $this->phone = $dependencyInjector->phone;
+        $this->transportKeys = $dependencyInjector->transportKeys;
     }
 }
 
-class Student extends Person
-{
-    public PublicTransportCard $publicTransportCard;
-    public function __construct(StudentBuilder $builder)
-    {
-        $this->wallet = $builder->wallet;
-        $this->keys = $builder->keys;
-        $this->phone = $builder->phone;
-        $this->publicTransportCard = $builder->publicTransportCard;
-    }
-}
-
-interface leaveHome
+interface LeaveHome
 {
     public function getWallet();
     public function getKeys();
     public function getPhone();
 }
 
-abstract class LeavingHomeBuilder implements leaveHome
+abstract class LeavingHomeDependencies implements LeaveHome
 {
     public Wallet $wallet;
     public Keys $keys;
     public Phone $phone;
 
-    public function getWallet(): static
+    public function __construct()
+    {
+        $this->getKeys();
+        $this->getWallet();
+        $this->getPhone();
+    }
+
+    public function getWallet()
     {
         $this->wallet = new Wallet();
-        return $this;
     }
-    public function getKeys(): static
+    public function getKeys()
     {
         $this->keys = new Keys();
-        return $this;
     }
-    public function getPhone(): static
+    public function getPhone()
     {
         $this->phone = new Phone();
-        return $this;
-    }
-    public abstract function build();
-}
-
-class StudentBuilder extends LeavingHomeBuilder
-{
-    public PublicTransportCard $publicTransportCard;
-    public function getPublicTransportCard(): static
-    {
-        $this->publicTransportCard = new PublicTransportCard();
-        return $this;
-    }
-    public function build(): Student
-    {
-        return new Student($this);
     }
 }
 
-class WorkerBuilder extends LeavingHomeBuilder
+class StudentDependencies extends LeavingHomeDependencies
 {
-    public TransportKeys $vehicleKeys;
-    public function getCarKeys(): static
+    public string $type = 'student';
+    public PublicTransportCard $transportKeys;
+    public function __construct()
     {
-        $this->vehicleKeys = new CarKeys();
-        return $this;
+        parent::__construct();
+        $this->getPublicTransportCard();
     }
-    public function getMotoKeys(): static
+    public function getPublicTransportCard()
     {
-        $this->vehicleKeys = new MotoKeys();
-        return $this;
+        $this->transportKeys = new PublicTransportCard();
     }
-    public function build(): Worker
+}
+
+class WorkerDependencies extends LeavingHomeDependencies
+{
+    public string $type = 'worker';
+    public TransportKeys $transportKeys;
+
+    public function __construct(string $vehicleType)
     {
-        return new Worker($this);
+        parent::__construct();
+        match (true) {
+            (bool) preg_match('/car/i', $vehicleType) => $this->getCarKeys(),
+            (bool) preg_match('/moto/i', $vehicleType) => $this->getMotoKeys(),
+            default => $this->getCarKeys()
+        };
+    }
+
+    public function getCarKeys()
+    {
+        $this->transportKeys = new CarKeys();
+    }
+    public function getMotoKeys()
+    {
+        $this->transportKeys = new MotoKeys();
     }
 }

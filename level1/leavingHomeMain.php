@@ -1,23 +1,10 @@
 <?php
 require_once 'leavingHome.php';
 
-$student = (new StudentBuilder())->getKeys()
-    ->getWallet()
-    ->getPhone()
-    ->getPublicTransportCard()
-    ->build();
+$student = new Person(new StudentDependencies);
+$workerCar = new Person(new WorkerDependencies('car'));
+$workerMoto = new Person(new WorkerDependencies('moto'));
 
-$workerMoto = (new WorkerBuilder())->getKeys()
-    ->getWallet()
-    ->getPhone()
-    ->getMotoKeys()
-    ->build();
-
-$workerCar = (new WorkerBuilder())->getKeys()
-    ->getWallet()
-    ->getPhone()
-    ->getCarKeys()
-    ->build();
 
 var_dump($student);
 var_dump($workerCar);
