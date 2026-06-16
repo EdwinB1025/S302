@@ -55,7 +55,7 @@ class MoodleCourse implements Subject
     }
     public function notify(Task $task)
     {
-        if (empty($tasks) || empty($this->instructors)) {
+        if (empty($this->tasks) || empty($this->instructors)) {
             echo "Warning: No existen tareas o instructores para comunicar entregas!\n";
         } else {
 

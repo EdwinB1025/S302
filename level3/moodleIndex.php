@@ -2,5 +2,6 @@
 require_once 'moodleObserver.php';
 
 $fullStack = new MoodleCourse;
-$fullStack->addInstructor('Ruben');
+$ruben = new Instructor('Ruben');
+$fullStack->addInstructor($ruben);
 $fullStack->deliverTask('Ejercicio Observer', 'Edwin Barrera');
