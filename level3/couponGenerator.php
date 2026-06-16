@@ -1,86 +1,49 @@
 <?php
-interface CarCouponGenerator
+interface CouponStrategy
 {
-    public function addSeasonDiscount();
-    public function addStockDiscount();
+    public function calculateDiscount(bool $isHighSeason, bool $bigStock): int;
 }
 
-trait ModifyAttributes
+class BmwCoupon implements CouponStrategy
 {
-
-    protected bool $isHigSeason = false;
-    protected bool $bigStock  = true;
-
-    public function __construct(private int $discount = 0) {}
-
-    public function changeSeason(): void
+    public function calculateDiscount(bool $isHighSeason, bool $bigStock): int
     {
-        $this->isHigSeason = !$this->isHigSeason;
-    }
-    public function changeStock(): void
-    {
-        $this->bigStock = !$this->bigStock;
-    }
-    public function generateCoupon()
-    {
-        $this->addSeasonDiscount();
-        $this->addStockDiscount();
-        echo "Get {$this->discount}% off the price of your new car.\n";
+        return (!$isHighSeason ? 5 : 0) + ($bigStock ? 7 : 0);
     }
 }
 
-class BmwCuoponGenerator implements CarCouponGenerator
+class MercedesCoupon implements CouponStrategy
 {
-    use ModifyAttributes;
-
-    public function addSeasonDiscount()
+    public function calculateDiscount(bool $isHighSeason, bool $bigStock): int
     {
-        $this->discount += !$this->isHigSeason ? 5 : 0;
-    }
-    public function addStockDiscount()
-    {
-        $this->discount += $this->bigStock ? 7 : 0;
-    }
-}
-
-class MercedesCuoponGenerator implements CarCouponGenerator
-{
-    use modifyAttributes;
-
-    public function addSeasonDiscount()
-    {
-        $this->discount += !$this->isHigSeason ? 4 : 0;
-    }
-    public function addStockDiscount()
-    {
-        $this->discount += $this->bigStock ? 10 : 0;
+        return (!$isHighSeason ? 4 : 0) + ($bigStock ? 10 : 0);
     }
 }
 
 class CouponGenerator
 {
-    protected $specificCouponGenerator;
+    private bool $isHighSeason = false;
+    private bool $bigStock = true;
 
-    public function __construct(string $type)
+    public function __construct(private CouponStrategy $strategy) {} // inyectada
+
+    public function setStrategy(CouponStrategy $strategy): void // cambiable en runtime
     {
-        if (preg_match('/bmw/i', $type)) {
-            $this->specificCouponGenerator = new BmwCuoponGenerator;
-        } else if (preg_match('/mercedes/i', $type)) {
-            $this->specificCouponGenerator = new MercedesCuoponGenerator;
-        } else {
-            throw new Exception("type of coupon not supported.");
-        }
+        $this->strategy = $strategy;
     }
-    public function changeSeason()
+
+    public function changeSeason(): void
     {
-        $this->specificCouponGenerator->changeSeason();
+        $this->isHighSeason = !$this->isHighSeason;
     }
-    public function changeStock()
+    public function changeStock(): void
     {
-        $this->specificCouponGenerator->changeStock();
+        $this->bigStock = !$this->bigStock;
     }
-    public function generateCoupon()
+
+    public function generateCoupon(): void
     {
-        $this->specificCouponGenerator->generateCoupon();
+        $discount = $this->strategy->calculateDiscount($this->isHighSeason, $this->bigStock);
+        echo "Get {$discount}% off the price of your new car.\n";
     }
 }
