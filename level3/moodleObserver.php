@@ -19,7 +19,17 @@ class Task
     }
 }
 
-class Instructor
+interface Observer
+{
+    public function getNotified(Task $task);
+}
+
+interface Subject
+{
+    public function addInstructor(Observer $observer);
+    public function notify(Task $task);
+}
+class Instructor implements Observer
 {
     public function __construct(protected string $name) {}
     public function getNotified(Task $evento)
@@ -28,40 +38,34 @@ class Instructor
     }
 }
 
-class MoodleCourse
+class MoodleCourse implements Subject
 {
     protected array $tasks = [];
     protected array $instructors = [];
 
-    public function addInstructor(string $name)
+    public function addInstructor(Observer $name)
     {
-        $this->instructors[] = new Instructor($name);
+        $this->instructors[] = $name;
     }
     public function deliverTask(string $taskName, string $student)
     {
         $newTask = new Task($taskName, $student);
         $this->tasks[] = $newTask;
-        $this->notifyInstructors();
+        $this->notify($newTask);
     }
-    public function notifyInstructors()
+    public function notify(Task $task)
     {
-        $tasks = $this->getTasks();
         if (empty($tasks) || empty($this->instructors)) {
             echo "Warning: No existen tareas o instructores para comunicar entregas!\n";
         } else {
-            foreach ($tasks as $task) {
-                foreach ($this->instructors as $instructor) {
-                    $instructor->getNotified($task);
-                }
-                $this->changeTaskStatus($task->id);
+
+            foreach ($this->instructors as $instructor) {
+                $instructor->getNotified($task);
             }
+            $this->changeTaskStatus($task->id);
         }
     }
-    public function getTasks(): array
-    {
-        return array_filter($this->tasks, fn($t) => $t->communicated === false);
-    }
-    public function changeTaskStatus(int $id)
+    private function changeTaskStatus(int $id)
     {
         $task = array_find($this->tasks, fn($t) =>
         $t->id === $id);
